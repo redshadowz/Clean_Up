@@ -5,7 +5,6 @@ self:SetScript('OnEvent', function() this[event](this) end)
 for _, event in {'ADDON_LOADED', 'PLAYER_LOGIN', 'MERCHANT_SHOW', 'MERCHANT_CLOSED'} do
 	self:RegisterEvent(event)
 end
-local foundBagnon
 local maxMovesPerClick = 5;
 local moveCounter = 0;
 local lastTime
@@ -36,10 +35,11 @@ end
 function self.ADDON_LOADED()
 	if not Clean_Up_Settings then Clean_Up_Settings = { reversed = false, assignments = {}, bags = { parent = "ContainerFrame1", position = {-24, -5}, }, bank = { parent = "BankFrame", position = {-57, -11}, }, } end
 	if arg1 ~= "Clean_Up" then
-		if arg1 == "Bagnon" then Clean_Up_Settings["bags"].parent = "BagnonTitle" Clean_Up_Settings["bags"].position = {0, -1} self:CreateButton'bags' Clean_Up_Settings["bank"].parent = "BanknonTitle" Clean_Up_Settings["bank"].position = {0, -1} self:CreateButton'bank' foundBagnon = true end
-		if not foundBagnon and arg1 == "pfUI" and pfBag then Clean_Up_Settings["bags"].parent = "pfBag" Clean_Up_Settings["bags"].position = {-103, 4} self:CreateButton'bags' Clean_Up_Settings["bank"].parent = "pfBank" Clean_Up_Settings["bank"].position = {-40, 4} self:CreateButton'bank' end
+		if arg1 == "Bagnon" then Clean_Up_Settings["bags"].parent = "BagnonTitle" Clean_Up_Settings["bags"].position = {0, -1} self:CreateButton'bags' Clean_Up_Settings["bank"].parent = "BanknonTitle" Clean_Up_Settings["bank"].position = {0, -1} self:CreateButton'bank' end
+		if not Bagnon and arg1 == "pfUI" and pfBag then Clean_Up_Settings["bags"].parent = "pfBag" Clean_Up_Settings["bags"].position = {-103, 4} self:CreateButton'bags' Clean_Up_Settings["bank"].parent = "pfBank" Clean_Up_Settings["bank"].position = {-40, 4} self:CreateButton'bank' end
 		return
 	end
+	if Bagnon then Clean_Up_Settings["bags"].parent = "BagnonTitle" Clean_Up_Settings["bags"].position = {0, -1} self:CreateButton'bags' Clean_Up_Settings["bank"].parent = "BanknonTitle" Clean_Up_Settings["bank"].position = {0, -1} self:CreateButton'bank' end
 	self.CLASSES = {
 		-- arrow
 		{
