@@ -89,7 +89,6 @@ function self.ADDON_LOADED()
 	self:CreateButton'bags'
 	self:CreateButton'bank'
 end
-local count = 0
 function self:PLAYER_LOGIN()
 	self.PickupContainerItem = PickupContainerItem
 	function PickupContainerItem(...)
@@ -109,6 +108,7 @@ function self:PLAYER_LOGIN()
 	function UseContainerItem(...)
 		local container, position = unpack(arg)
 		local slot = self:SlotKey(container, position)
+		local sellCounter = 0
 		if not slot then return end
 		if IsAltKeyDown() then
 			if Clean_Up_Settings.assignments[slot] then
@@ -125,15 +125,14 @@ function self:PLAYER_LOGIN()
 						if self:SlotKey(container, position) ~= slot and GetContainerItemLink(container, position) == link then
 							arg[1], arg[2] = container, position
 							self.UseContainerItem(unpack(arg))
-							count = count + 1
-							if self.atMerchant and count == 5 then break end
+							sellCounter = sellCounter + 1
+							if self.atMerchant and sellCounter == 5 then break end
 						end
 					end
-					if self.atMerchant and count == 5 then break end
+					if self.atMerchant and sellCounter == 5 then break end
 				end
 			end
-			if count == 5 then lastTime = GetTime() - .5 else lastTime = GetTime() end
-			count = 0
+			if sellCounter == 5 then lastTime = GetTime() - .5 else lastTime = GetTime() end
 			lastSlotAndLink[1] = slot
 			lastSlotAndLink[2] = link
 			self.UseContainerItem(unpack(arg))
@@ -146,7 +145,6 @@ local Sort1ThenStack2 = 1
 function self:UPDATE()
 	if slowdowntheupdateimer < GetTime() and not IsAltKeyDown() then
 		slowdowntheupdateimer = GetTime() + .5
-		count = 0
 		if moveCounter == 0 and keyToRepeatIfNotFinished then self:Go(keyToRepeatIfNotFinished) else keyToRepeatIfNotFinished = nil end
 		if not self.model then
 			self:CreateModel()
@@ -383,18 +381,6 @@ function self:Stack()
 					counter=counter+1
 					self:Move(src, dst)
 				end
-			end
-		end
-	end
-end
-function self:ClickSell(container,position)
-	local link = GetContainerItemLink(container, position)
-	for _, container in containers do
-		for position=1,GetContainerNumSlots(container) do
-			if self:SlotKey(container, position) ~= slot and GetContainerItemLink(container, position) == link then
-				arg[1], arg[2] = container, position
-				self.UseContainerItem(unpack(arg))
-				return true
 			end
 		end
 	end
