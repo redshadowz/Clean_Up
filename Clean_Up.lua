@@ -2,7 +2,7 @@ local self = CreateFrame'Frame'
 self:Hide()
 self:SetScript('OnUpdate', function() this:UPDATE() end)
 self:SetScript('OnEvent', function() this[event](this) end)
-for _, event in {'ADDON_LOADED', 'PLAYER_LOGIN', 'MERCHANT_SHOW', 'MERCHANT_CLOSED'} do
+for _, event in {'ADDON_LOADED', 'PLAYER_LOGIN', 'MERCHANT_SHOW', 'MERCHANT_CLOSED', 'PLAYER_ENTERING_WORLD'} do
 	self:RegisterEvent(event)
 end
 local maxMovesPerClick = 5
@@ -34,12 +34,6 @@ function self:ItemInvTypeKey(itemClass, itemSubClass, itemSlot)
 end
 function self.ADDON_LOADED()
 	if not Clean_Up_Settings then Clean_Up_Settings = { reversed = false, assignments = {}, bags = { parent = "ContainerFrame1", position = {-24, -5}, }, bank = { parent = "BankFrame", position = {-57, -11}, }, } end
-	if arg1 ~= "Clean_Up" then
-		if arg1 == "Bagnon" then Clean_Up_Settings["bags"].parent = "BagnonTitle" Clean_Up_Settings["bags"].position = {0, -1} self:CreateButton'bags' Clean_Up_Settings["bank"].parent = "BanknonTitle" Clean_Up_Settings["bank"].position = {0, -1} self:CreateButton'bank' end
-		if not Bagnon and arg1 == "pfUI" and pfBag then Clean_Up_Settings["bags"].parent = "pfBag" Clean_Up_Settings["bags"].position = {-103, 4} self:CreateButton'bags' Clean_Up_Settings["bank"].parent = "pfBank" Clean_Up_Settings["bank"].position = {-40, 4} self:CreateButton'bank' end
-		return
-	end
-	if Bagnon then Clean_Up_Settings["bags"].parent = "BagnonTitle" Clean_Up_Settings["bags"].position = {0, -1} self:CreateButton'bags' Clean_Up_Settings["bank"].parent = "BanknonTitle" Clean_Up_Settings["bank"].position = {0, -1} self:CreateButton'bank' end
 	self.CLASSES = {
 		{ -- arrow
 			containers = {2101, 5439, 7278, 11362, 3573, 3605, 7371, 8217, 2662, 19319, 18714},
@@ -85,9 +79,6 @@ function self.ADDON_LOADED()
 	self:SetupSlash()
 
 	CreateFrame('GameTooltip', 'Clean_Up_Tooltip', nil, 'GameTooltipTemplate')
-	self:CreateButtonPlacer()
-	self:CreateButton'bags'
-	self:CreateButton'bank'
 end
 function self:PLAYER_LOGIN()
 	self.PickupContainerItem = PickupContainerItem
@@ -138,8 +129,18 @@ function self:PLAYER_LOGIN()
 			self.UseContainerItem(unpack(arg))
 		end
 	end
-	if not Bagnon and not pfUI then Clean_Up_Settings["bags"].parent = "ContainerFrame1" Clean_Up_Settings["bags"].position = {-24, -5} Clean_Up_Settings["bank"].parent = "BankFrame" Clean_Up_Settings["bank"].position = {-57, -11} self:CreateButton'bags' self:CreateButton'bank' end
 end
+function self:PLAYER_ENTERING_WORLD()
+	if not Clean_Up_Settings["bags"] or Clean_Up_Settings["bags"].parent or (string.find(getglobal(Clean_Up_Settings["bags"].parent):GetName(), "ContainerFrame") and (IsAddOnLoaded("Bagnon") or IsAddOnLoaded("pfUI"))) or (Clean_Up_Settings["bags"].parent == "BagnonTitle" and not IsAddOnLoaded("Bagnon")) or (Clean_Up_Settings["bags"].parent == "pfBag" and not IsAddOnLoaded("Bagnon")) or (Clean_Up_Settings["bags"].parent == "ContainerFrame1" and (IsAddOnLoaded("Bagnon") or IsAddOnLoaded("pfUI"))) then
+		if IsAddOnLoaded("Bagnon") then Clean_Up_Settings["bags"].parent = "BagnonTitle" Clean_Up_Settings["bags"].position = {0, -1} Clean_Up_Settings["bank"].parent = "BanknonTitle" Clean_Up_Settings["bank"].position = {0, -1}
+		elseif IsAddOnLoaded("pfUI") then Clean_Up_Settings["bags"].parent = "pfBag" Clean_Up_Settings["bags"].position = {-103, 4} Clean_Up_Settings["bank"].parent = "pfBank" Clean_Up_Settings["bank"].position = {-40, 4}
+		else Clean_Up_Settings = { reversed = false, assignments = {}, bags = { parent = "ContainerFrame1", position = {-24, -5}, }, bank = { parent = "BankFrame", position = {-57, -11}, }, } end
+	end
+	self:CreateButtonPlacer()
+	self:CreateButton'bags'
+	self:CreateButton'bank'
+end
+
 local slowdowntheupdateimer = 0
 local Sort1ThenStack2 = 1
 function self:UPDATE()
